@@ -23,6 +23,8 @@ return {
 
     -- Add your own debuggers here
     'leoluz/nvim-dap-go',
+    'mfussenegger/nvim-dap-python',
+    'theHamsta/nvim-dap-virtual-text',
   },
   keys = function(_, keys)
     local dap = require 'dap'
@@ -64,26 +66,11 @@ return {
       ensure_installed = {
         -- Update this to ensure that you have the debuggers for the langs you want
         'delve',
+        'python',
+        'rust',
       },
     }
 
-    -- dap.adapters.lldb = {
-    --   type = 'executable',
-    --   command = '/usr/bin/lldb',
-    --   name = 'lldb',
-    -- }
-    --
-    -- dap.configurations.rust = {
-    --   {
-    --     type = 'lldb',
-    --     request = 'launch',
-    --     name = 'Lunch sunchai',
-    --     program = function()
-    --       --return '/Users/rbas/projects/personal/sunchai/target/debug/sunchai'
-    --       return '/Users/rbas/projects/personal/dbgr/target/debug/dbgr'
-    --     end,
-    --   },
-    -- }
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {
@@ -117,6 +104,52 @@ return {
         -- See https://github.com/leoluz/nvim-dap-go/blob/main/README.md#configuring
         detached = vim.fn.has 'win32' == 0,
       },
+    }
+    require('nvim-dap-virtual-text').setup {}
+
+    -- Python settings https://daniele.tech/2024/01/neovim-lsp-and-dap-for-python-and-django/#:~:text=HallerPatrick/py_lsp.nvim;%20For%20DAP%20you
+    local pythonPath = function()
+      local cwd = vim.loop.cwd()
+      if vim.fn.executable(cwd .. '/.venv/bin/python') == 1 then
+        return cwd .. '/.venv/bin/python'
+      else
+        return '/opt/homebrew/opt/python@3/bin/python3'
+      end
+    end
+    require('dap-python').setup()
+    dap.configurations.python = {
+      {
+        type = 'python',
+        request = 'launch',
+        name = 'Lunch file',
+        program = '${file}',
+        pythonPath = pythonPath(),
+      },
+      {
+        type = 'python',
+        request = 'launch',
+        name = 'DAP FastAPI',
+        -- program = vim.loop.cwd() .. '/.venv/bin/fastapi',
+        program = vim.loop.cwd() .. '/main.py',
+        -- program = '/Users/rbas/projects/junk/uvhello/.venv/bin/fastapi',
+        args = { 'dev' },
+        pythonPath = pythonPath(),
+        -- pythonPath = '/Users/rbas/projects/junk/uvhello/.venv/bin/fastapi',
+      },
+      {
+        type = 'python',
+        request = 'launch',
+        name = 'FastAPI',
+        program = vim.loop.cwd() .. '/main.py',
+        pythonPath = function()
+          return 'python'
+        end,
+      },
+    }
+    dap.adapters.python = {
+      type = 'executable',
+      command = pythonPath(),
+      args = { '-m', 'debugpy.adapter' },
     }
   end,
 }
