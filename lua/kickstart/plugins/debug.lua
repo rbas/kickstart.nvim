@@ -67,6 +67,23 @@ return {
       },
     }
 
+    -- dap.adapters.lldb = {
+    --   type = 'executable',
+    --   command = '/usr/bin/lldb',
+    --   name = 'lldb',
+    -- }
+    --
+    -- dap.configurations.rust = {
+    --   {
+    --     type = 'lldb',
+    --     request = 'launch',
+    --     name = 'Lunch sunchai',
+    --     program = function()
+    --       --return '/Users/rbas/projects/personal/sunchai/target/debug/sunchai'
+    --       return '/Users/rbas/projects/personal/dbgr/target/debug/dbgr'
+    --     end,
+    --   },
+    -- }
     -- Dap UI setup
     -- For more information, see |:help nvim-dap-ui|
     dapui.setup {
